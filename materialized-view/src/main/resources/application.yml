@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: materialized-view
+
+  cloud:
+    function:
+      definition: processProductChange
+
+    stream:
+      bindings:
+        processProductChange-in-0:
+          destination: product-changes
+          content-type: application/*+avro
+          group: materialized-view-group
+
+      kafka:
+        streams:
+          binder:
+            configuration:
+              application.id: materialized-view-app
+              bootstrap.servers: localhost:9092
+              default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              default.value.serde: io.confluent.kafka.streams.serdes.avro.GenericAvroSerde
+              schema.registry.url: http://localhost:8081
+              auto.offset.reset: earliest
+              processing.guarantee: exactly_once
+
+# Logging Configuration
+logging:
+  level:
+    com.ai.coding.materializedview: DEBUG
+    org.springframework.cloud.stream: INFO
+    org.apache.kafka.streams: INFO
