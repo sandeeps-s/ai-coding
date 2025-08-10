@@ -6,19 +6,16 @@ extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.apache.kafka:kafka-streams")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-stream")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")
-    implementation("org.springframework.kafka:spring-kafka")
 
     // Avro dependencies
     implementation("org.apache.avro:avro:1.11.3")
     implementation("io.confluent:kafka-avro-serializer:7.5.0")
     implementation("io.confluent:kafka-streams-avro-serde:7.5.0")
 
-    // Jackson dependencies for JSON deserialization (keep for backward compatibility)
+    // Jackson dependencies for JSON deserialization
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
@@ -27,7 +24,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.8")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
-    testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 
 repositories {
