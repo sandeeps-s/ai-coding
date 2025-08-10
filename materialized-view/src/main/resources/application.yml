@@ -25,7 +25,6 @@ spring:
               auto.offset.reset: earliest
               processing.guarantee: exactly_once
 
-# Logging Configuration
 logging:
   level:
     com.ai.coding.materializedview: DEBUG

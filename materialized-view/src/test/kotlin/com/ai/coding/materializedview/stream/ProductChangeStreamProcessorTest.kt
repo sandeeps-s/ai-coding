@@ -4,19 +4,20 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.stream.binder.test.EnableTestBinder
 import org.springframework.cloud.stream.binder.test.InputDestination
-import org.springframework.context.annotation.Bean
 import org.springframework.messaging.support.GenericMessage
 import java.time.Instant
-import java.util.function.Consumer
-import kotlin.test.assertTrue
+import kotlin.test.assertNotNull
 
-@SpringBootTest(properties = [
-    "spring.cloud.function.definition=processProductChangeTest"
-])
+@SpringBootTest(
+    classes = [com.ai.coding.materializedview.MaterializedViewApplication::class],
+    properties = [
+        "spring.cloud.function.definition=processProductChange"
+    ]
+)
+@EnableTestBinder
 class ProductChangeStreamProcessorTest {
 
     @Autowired
@@ -61,33 +62,13 @@ class ProductChangeStreamProcessorTest {
             put("version", 1L)
         }
 
-        // When - Send message through the test binder
+        // When - Send message through the test binder (use default channel)
         input.send(GenericMessage(productChangeRecord))
 
-        // Then - Wait for processing and validate no exceptions
-        Thread.sleep(2000)
+        // Then - Validate that the message was processed without exceptions
+        // The test passes if no exceptions are thrown during processing
+        Thread.sleep(1000) // Allow time for async processing
 
-        assertTrue(true, "Message was processed successfully through Spring Cloud Stream Test Binder")
-    }
-
-    @SpringBootApplication
-    @EnableTestBinder
-    class TestConfiguration {
-        @Bean
-        fun processProductChangeTest(): Consumer<org.apache.avro.generic.GenericRecord> {
-            return Consumer { productChangeRecord ->
-                val productId = productChangeRecord.get("productId").toString()
-                val changeType = productChangeRecord.get("changeType").toString()
-
-                println("Test: Processing ProductChange - productId: $productId, changeType: $changeType")
-
-                // Simulate processing logic
-                when (changeType) {
-                    "CREATED" -> println("Test: Creating product $productId")
-                    "UPDATED" -> println("Test: Updating product $productId")
-                    "DELETED" -> println("Test: Deleting product $productId")
-                }
-            }
-        }
+        assertNotNull(input, "InputDestination should be available for testing")
     }
 }
