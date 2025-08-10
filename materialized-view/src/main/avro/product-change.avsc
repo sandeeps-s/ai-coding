@@ -1,0 +1,56 @@
+{
+  "type": "record",
+  "name": "ProductChange",
+  "namespace": "com.ai.coding.materializedview.avro",
+  "doc": "Product change event schema for materialized view updates",
+  "fields": [
+    {
+      "name": "productId",
+      "type": "string",
+      "doc": "Unique identifier for the product"
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "Product name"
+    },
+    {
+      "name": "description",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Optional product description"
+    },
+    {
+      "name": "price",
+      "type": "double",
+      "doc": "Product price"
+    },
+    {
+      "name": "category",
+      "type": "string",
+      "doc": "Product category"
+    },
+    {
+      "name": "changeType",
+      "type": {
+        "type": "enum",
+        "name": "ChangeType",
+        "symbols": ["CREATED", "UPDATED", "DELETED"]
+      },
+      "doc": "Type of change operation"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "Event timestamp in milliseconds since epoch"
+    },
+    {
+      "name": "version",
+      "type": "long",
+      "default": 1,
+      "doc": "Schema version for evolution support"
+    }
+  ]
+}
+
