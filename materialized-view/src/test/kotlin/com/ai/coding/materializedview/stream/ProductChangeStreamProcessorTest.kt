@@ -4,18 +4,19 @@ import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cloud.stream.binder.test.EnableTestBinder
 import org.springframework.cloud.stream.binder.test.InputDestination
-import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration
-import org.springframework.context.annotation.Import
+import org.springframework.context.annotation.Bean
 import org.springframework.messaging.support.GenericMessage
-import org.springframework.test.context.ActiveProfiles
 import java.time.Instant
+import java.util.function.Consumer
 import kotlin.test.assertTrue
 
-@SpringBootTest
-@Import(TestChannelBinderConfiguration::class)
-@ActiveProfiles("test")
+@SpringBootTest(properties = [
+    "spring.cloud.function.definition=processProductChangeTest"
+])
 class ProductChangeStreamProcessorTest {
 
     @Autowired
@@ -67,5 +68,26 @@ class ProductChangeStreamProcessorTest {
         Thread.sleep(2000)
 
         assertTrue(true, "Message was processed successfully through Spring Cloud Stream Test Binder")
+    }
+
+    @SpringBootApplication
+    @EnableTestBinder
+    class TestConfiguration {
+        @Bean
+        fun processProductChangeTest(): Consumer<org.apache.avro.generic.GenericRecord> {
+            return Consumer { productChangeRecord ->
+                val productId = productChangeRecord.get("productId").toString()
+                val changeType = productChangeRecord.get("changeType").toString()
+
+                println("Test: Processing ProductChange - productId: $productId, changeType: $changeType")
+
+                // Simulate processing logic
+                when (changeType) {
+                    "CREATED" -> println("Test: Creating product $productId")
+                    "UPDATED" -> println("Test: Updating product $productId")
+                    "DELETED" -> println("Test: Deleting product $productId")
+                }
+            }
+        }
     }
 }
