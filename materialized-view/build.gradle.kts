@@ -1,61 +1,34 @@
 plugins {
-    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1"
+    kotlin("jvm") version "1.9.25" apply false
+    kotlin("plugin.spring") version "1.9.25" apply false
+    id("org.springframework.boot") version "3.5.4" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.9.1" apply false
 }
 
-val springCloudVersion by extra("2025.0.0")
-val embeddedAerospikeVersion by extra("3.1.14")
-val aerospikeStarterVersion by extra("0.19.0")
-val avroVersion by extra("1.11.3")
-val confluentVersion by extra("7.5.0")
-val mockkVersion by extra("1.13.8")
+allprojects {
+    group = "com.ai.coding"
+    version = "1.0.0"
 
-dependencies {
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.cloud:spring-cloud-stream")
-    implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")
-    implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
-
-    // Aerospike
-    implementation("com.aerospike:spring-boot-starter-data-aerospike:$aerospikeStarterVersion")
-
-    // Avro
-    implementation("org.apache.avro:avro:$avroVersion")
-    implementation("io.confluent:kafka-avro-serializer:$confluentVersion")
-    implementation("io.confluent:kafka-streams-avro-serde:$confluentVersion")
-
-    // Jackson
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-
-    // Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.mockito", module = "mockito-core")
-    }
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
-    testImplementation("com.playtika.testcontainers:embedded-aerospike:$embeddedAerospikeVersion")
-    testImplementation("io.rest-assured:rest-assured")
-}
-
-repositories {
-    mavenCentral()
-    maven("https://packages.confluent.io/maven/")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+    repositories {
+        mavenCentral()
+        maven { url = uri("https://packages.confluent.io/maven/") }
     }
 }
 
-avro {
-    isCreateSetters = false
-    fieldVisibility = "PRIVATE"
-    outputCharacterEncoding = "UTF-8"
-    stringType = "String"
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+}
+
+// Explicitly disable Spring Boot tasks on root project
+gradle.taskGraph.whenReady {
+    allTasks.forEach { task ->
+        if (task.project == project && (task.name == "bootJar" || task.name == "bootRun")) {
+            task.enabled = false
+        }
+    }
 }
