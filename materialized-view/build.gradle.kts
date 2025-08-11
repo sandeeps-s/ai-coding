@@ -39,6 +39,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
     testImplementation("com.playtika.testcontainers:embedded-aerospike:$embeddedAerospikeVersion")
+    testImplementation("io.rest-assured:rest-assured")
 }
 
 repositories {
