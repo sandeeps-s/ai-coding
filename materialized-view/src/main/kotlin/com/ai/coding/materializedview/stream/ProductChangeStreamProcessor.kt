@@ -1,5 +1,6 @@
 package com.ai.coding.materializedview.stream
 
+import com.ai.coding.materializedview.service.ProductViewService
 import org.apache.avro.generic.GenericRecord
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -20,14 +21,10 @@ data class ProductChange(
 
 enum class ChangeType { CREATED, UPDATED, DELETED }
 
-// Functional Result type for error handling
-sealed class ProcessingResult {
-    data class Success(val productChange: ProductChange) : ProcessingResult()
-    data class Failure(val error: String, val cause: Throwable?) : ProcessingResult()
-}
-
 @Configuration
-class ProductChangeStreamProcessor {
+class ProductChangeStreamProcessor(
+    private val productViewService: ProductViewService
+) {
 
     private val logger = LoggerFactory.getLogger(ProductChangeStreamProcessor::class.java)
 
@@ -103,22 +100,58 @@ class ProductChangeStreamProcessor {
             }
         }
 
-    // Higher-order functions for specific business logic
+    // Higher-order functions for specific business logic with Aerospike integration
     private fun handleProductCreation(productChange: ProductChange): ProductChange =
         productChange.also {
-            logger.debug("Creating product: {}", it.productId)
-            // Implement materialized view creation logic here
+            logger.debug("Creating product materialized view: {}", it.productId)
+            // Convert to Avro ProductChange and persist to Aerospike
+            val avroProductChange = com.ai.coding.materializedview.avro.ProductChange.newBuilder()
+                .setProductId(it.productId)
+                .setName(it.name)
+                .setDescription(it.description)
+                .setPrice(it.price)
+                .setCategory(it.category)
+                .setChangeType(com.ai.coding.materializedview.avro.ChangeType.valueOf(it.changeType.name))
+                .setTimestamp(it.timestamp)
+                .setVersion(it.version)
+                .build()
+
+            productViewService.handleProductChange(avroProductChange)
         }
 
     private fun handleProductUpdate(productChange: ProductChange): ProductChange =
         productChange.also {
-            logger.debug("Updating product: {}", it.productId)
-            // Implement materialized view update logic here
+            logger.debug("Updating product materialized view: {}", it.productId)
+            // Convert to Avro ProductChange and persist to Aerospike
+            val avroProductChange = com.ai.coding.materializedview.avro.ProductChange.newBuilder()
+                .setProductId(it.productId)
+                .setName(it.name)
+                .setDescription(it.description)
+                .setPrice(it.price)
+                .setCategory(it.category)
+                .setChangeType(com.ai.coding.materializedview.avro.ChangeType.valueOf(it.changeType.name))
+                .setTimestamp(it.timestamp)
+                .setVersion(it.version)
+                .build()
+
+            productViewService.handleProductChange(avroProductChange)
         }
 
     private fun handleProductDeletion(productChange: ProductChange): ProductChange =
         productChange.also {
-            logger.debug("Deleting product: {}", it.productId)
-            // Implement materialized view deletion logic here
+            logger.debug("Deleting product materialized view: {}", it.productId)
+            // Convert to Avro ProductChange and persist to Aerospike
+            val avroProductChange = com.ai.coding.materializedview.avro.ProductChange.newBuilder()
+                .setProductId(it.productId)
+                .setName(it.name)
+                .setDescription(it.description)
+                .setPrice(it.price)
+                .setCategory(it.category)
+                .setChangeType(com.ai.coding.materializedview.avro.ChangeType.valueOf(it.changeType.name))
+                .setTimestamp(it.timestamp)
+                .setVersion(it.version)
+                .build()
+
+            productViewService.handleProductChange(avroProductChange)
         }
 }
