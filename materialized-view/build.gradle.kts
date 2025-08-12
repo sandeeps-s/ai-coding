@@ -16,6 +16,13 @@ allprojects {
     }
 }
 
+// Centralized versions to avoid drift across modules
+extra["springCloudVersion"] = "2025.0.0"
+extra["embeddedAerospikeVersion"] = "3.1.14"
+extra["aerospikeStarterVersion"] = "0.19.0"
+extra["aerospikeSpringDataVersion"] = "5.2.0"
+extra["aerospikeClientVersion"] = "9.0.0"
+
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 

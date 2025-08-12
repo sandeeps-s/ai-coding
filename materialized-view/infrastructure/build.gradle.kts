@@ -4,8 +4,10 @@ plugins {
     kotlin("plugin.spring")
 }
 
-val springCloudVersion = "2025.0.0"
-val embeddedAerospikeVersion = "3.1.14"
+val springCloudVersion: String by rootProject.extra
+val embeddedAerospikeVersion: String by rootProject.extra
+val aerospikeSpringDataVersion: String by rootProject.extra
+val aerospikeClientVersion: String by rootProject.extra
 
 dependencies {
     implementation(project(":domain"))
@@ -25,7 +27,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")
 
     // Aerospike Spring Data (compile-time dependency, not starter)
-    implementation("com.aerospike:spring-data-aerospike:5.2.0")
+    implementation("com.aerospike:spring-data-aerospike:${aerospikeSpringDataVersion}")
 
     // Avro & Kafka (compile-time dependencies)
     implementation("org.apache.avro:avro:1.11.3")
@@ -39,7 +41,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     // Aerospike client (compile-time only)
-    implementation("com.aerospike:aerospike-client-jdk8:9.0.0")
+    implementation("com.aerospike:aerospike-client-jdk8:${aerospikeClientVersion}")
     // Test dependencies (minimal)
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.13.8")

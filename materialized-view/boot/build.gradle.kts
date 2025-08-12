@@ -4,8 +4,9 @@ plugins {
     kotlin("plugin.spring")
 }
 
-val springCloudVersion = "2025.0.0"
-val embeddedAerospikeVersion = "3.1.14"
+val springCloudVersion: String by rootProject.extra
+val embeddedAerospikeVersion: String by rootProject.extra
+val aerospikeStarterVersion: String by rootProject.extra
 
 dependencies {
     implementation(project(":domain"))
@@ -22,8 +23,8 @@ dependencies {
     // Spring Cloud & Kafka Starters
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
-    // Aerospike Starter (moved from infrastructure)
-    implementation("com.aerospike:spring-boot-starter-data-aerospike:0.19.0")
+    // Aerospike Starter (single source of truth via root extra)
+    implementation("com.aerospike:spring-boot-starter-data-aerospike:${aerospikeStarterVersion}")
 
     // Runtime dependencies
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
