@@ -4,11 +4,6 @@ plugins {
     kotlin("plugin.spring")
 }
 
-val springCloudVersion: String by rootProject.extra
-val embeddedAerospikeVersion: String by rootProject.extra
-val aerospikeSpringDataVersion: String by rootProject.extra
-val aerospikeClientVersion: String by rootProject.extra
-
 dependencies {
     implementation(project(":domain"))
     implementation(project(":application"))
@@ -27,12 +22,12 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")
 
     // Aerospike Spring Data (compile-time dependency, not starter)
-    implementation("com.aerospike:spring-data-aerospike:${aerospikeSpringDataVersion}")
+    implementation("com.aerospike:spring-data-aerospike:${rootProject.extra["aerospikeSpringDataVersion"]}")
 
     // Avro & Kafka (compile-time dependencies)
-    implementation("org.apache.avro:avro:1.11.3")
-    implementation("io.confluent:kafka-avro-serializer:7.5.0")
-    implementation("io.confluent:kafka-streams-avro-serde:7.5.0")
+    implementation("org.apache.avro:avro:${rootProject.extra["avroVersion"]}")
+    implementation("io.confluent:kafka-avro-serializer:${rootProject.extra["kafkaAvroSerializerVersion"]}")
+    implementation("io.confluent:kafka-streams-avro-serde:${rootProject.extra["kafkaAvroSerializerVersion"]}")
 
     // Jackson (compile-time dependencies)
     implementation("com.fasterxml.jackson.core:jackson-core")
@@ -41,17 +36,18 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     // Aerospike client (compile-time only)
-    implementation("com.aerospike:aerospike-client-jdk8:${aerospikeClientVersion}")
+    implementation("com.aerospike:aerospike-client-jdk8:${rootProject.extra["aerospikeClientVersion"]}")
+
     // Test dependencies (minimal)
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
     testImplementation("org.springframework:spring-test")
 }
 
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.4")
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${rootProject.extra["springCloudVersion"]}")
     }
 }
 

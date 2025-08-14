@@ -4,10 +4,6 @@ plugins {
     kotlin("plugin.spring")
 }
 
-val springCloudVersion: String by rootProject.extra
-val embeddedAerospikeVersion: String by rootProject.extra
-val aerospikeStarterVersion: String by rootProject.extra
-
 dependencies {
     implementation(project(":domain"))
     implementation(project(":application"))
@@ -24,24 +20,24 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
     // Aerospike Starter (single source of truth via root extra)
-    implementation("com.aerospike:spring-boot-starter-data-aerospike:${aerospikeStarterVersion}")
+    implementation("com.aerospike:spring-boot-starter-data-aerospike:${rootProject.extra["aerospikeStarterVersion"]}")
 
     // Runtime dependencies
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
     // Test dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.cloud:spring-cloud-stream-test-binder")
-    testImplementation("com.playtika.testcontainers:embedded-aerospike:$embeddedAerospikeVersion")
+    testImplementation("com.playtika.testcontainers:embedded-aerospike:${rootProject.extra["embeddedAerospikeVersion"]}")
     testImplementation("io.rest-assured:rest-assured")
-    testImplementation("org.apache.avro:avro:1.11.3")  // Add Avro for test data creation
+    testImplementation("org.apache.avro:avro:${rootProject.extra["avroVersion"]}")  // Add Avro for test data creation
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${rootProject.extra["springCloudVersion"]}")
     }
 }
 

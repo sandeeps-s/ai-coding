@@ -17,11 +17,21 @@ allprojects {
 }
 
 // Centralized versions to avoid drift across modules
-extra["springCloudVersion"] = "2025.0.0"
-extra["embeddedAerospikeVersion"] = "3.1.14"
-extra["aerospikeStarterVersion"] = "0.19.0"
-extra["aerospikeSpringDataVersion"] = "5.2.0"
-extra["aerospikeClientVersion"] = "9.0.0"
+extra.apply {
+    set("springCloudVersion", "2025.0.0")
+    set("embeddedAerospikeVersion", "3.1.14")
+    set("aerospikeStarterVersion", "0.19.0")
+    set("aerospikeSpringDataVersion", "5.2.0")
+    set("aerospikeClientVersion", "9.0.0")
+
+    // Test framework versions
+    set("junitVersion", "5.10.0")
+    set("mockkVersion", "1.13.8")
+
+    // Kafka and Avro versions
+    set("avroVersion", "1.11.3")
+    set("kafkaAvroSerializerVersion", "7.5.0")
+}
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")

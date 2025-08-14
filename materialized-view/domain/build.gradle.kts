@@ -8,6 +8,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
     // Test dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
 }
