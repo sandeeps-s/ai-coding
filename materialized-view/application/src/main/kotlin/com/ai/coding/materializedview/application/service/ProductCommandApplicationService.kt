@@ -3,13 +3,11 @@ package com.ai.coding.materializedview.application.service
 import com.ai.coding.materializedview.domain.model.Product
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
-import org.springframework.stereotype.Service
 
 /**
  * Application service implementing product command use cases
  * This layer handles business rules and coordinates with repositories
  */
-@Service
 class ProductCommandApplicationService(
     private val productRepository: ProductRepository
 ) : ProductCommandUseCase {

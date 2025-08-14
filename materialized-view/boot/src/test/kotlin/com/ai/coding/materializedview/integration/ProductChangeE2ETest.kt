@@ -38,23 +38,6 @@ class ProductChangeE2ETest {
         RestAssured.port = port
     }
 
-    @AfterEach
-    fun tearDown() {
-        // Clean up products after each test
-        // Note: You may need to implement a cleanup endpoint in your ProductViewController
-        // or skip cleanup if your test data is isolated
-
-        // Option 1: If you have a cleanup endpoint
-        // RestAssured.given()
-        //     .delete("/api/products")
-        //     .then()
-        //     .assertThat()
-        //     .statusCode(200)
-
-        // Option 2: For now, skip cleanup since the endpoint may not exist
-        // The test will work without cleanup if using embedded Aerospike
-    }
-
     // Test data factory using functional approach
     private fun createTestSchema(): Schema = Schema.Parser().parse("""
         {
@@ -128,5 +111,4 @@ class ProductChangeE2ETest {
             .body("category", equalTo("Stream Test"))
             .body("version", equalTo(1));
     }
-
 }

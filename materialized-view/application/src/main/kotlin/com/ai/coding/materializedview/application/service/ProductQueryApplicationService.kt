@@ -3,14 +3,12 @@ package com.ai.coding.materializedview.application.service
 import com.ai.coding.materializedview.domain.model.Product
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
-import org.springframework.stereotype.Service
 import java.util.*
 
 /**
  * Application service implementing product query use cases
  * This layer orchestrates domain operations and coordinates with repositories
  */
-@Service
 class ProductQueryApplicationService(
     private val productRepository: ProductRepository
 ) : ProductQueryUseCase {
