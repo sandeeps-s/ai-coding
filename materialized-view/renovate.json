@@ -1,0 +1,112 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "group:allNonMajor"
+  ],
+  "enabledManagers": ["gradle", "regex"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 0,
+  "timezone": "UTC",
+  "schedule": ["after 6am and before 6pm on weekdays"],
+
+  "gradle": {
+    "ignorePaths": ["**/build/**", "**/.gradle/**"]
+  },
+
+  "packageRules": [
+    {
+      "matchManagers": ["gradle"],
+      "groupName": "gradle-deps (minor/patch)",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "matchManagers": ["regex"],
+      "groupName": "centralized version vars",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    }
+  ],
+
+  "regexManagers": [
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"springCloudVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "org.springframework.cloud:spring-cloud-dependencies"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"embeddedAerospikeVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "com.playtika.testcontainers:embedded-aerospike"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"aerospikeStarterVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "com.aerospike:spring-boot-starter-data-aerospike"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"aerospikeSpringDataVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "com.aerospike:spring-data-aerospike"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"aerospikeClientVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "com.aerospike:aerospike-client-jdk8"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"junitVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "org.junit.jupiter:junit-jupiter"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"mockkVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "io.mockk:mockk"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"avroVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "org.apache.avro:avro"
+    },
+    {
+      "fileMatch": ["^build\\.gradle\\.kts$"],
+      "matchStrings": [
+        "this\\[\\\"kafkaAvroSerializerVersion\\\"\\]\\s*=\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+      ],
+      "datasourceTemplate": "maven",
+      "depNameTemplate": "io.confluent:kafka-avro-serializer",
+      "registryUrls": ["https://packages.confluent.io/maven/"]
+    }
+  ]
+}
+
