@@ -23,6 +23,18 @@ spring:
           destination: product-changes
           content-type: application/*+avro
           group: materialized-view-group
+          consumer:
+            maxAttempts: 5
+            backOffInitialInterval: 1000
+            backOffMultiplier: 2.0
+            backOffMaxInterval: 15000
+            retryableExceptions:
+              com.ai.coding.materializedview.domain.exception.InvalidMessageException: false
+              com.ai.coding.materializedview.domain.exception.ExternalDependencyException: true
+              com.ai.coding.materializedview.domain.exception.PersistenceException: true
+        productChangesDlq-out-0:
+          destination: product-changes.DLT
+          content-type: application/*+avro
 
       kafka:
         streams:
@@ -35,6 +47,22 @@ spring:
               schema.registry.url: http://localhost:8081
               auto.offset.reset: earliest
               processing.guarantee: exactly_once
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      product-commands:
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        recordExceptions:
+          - com.ai.coding.materializedview.domain.exception.ExternalDependencyException
+          - com.ai.coding.materializedview.domain.exception.PersistenceException
+        ignoreExceptions:
+          - com.ai.coding.materializedview.domain.exception.InvalidMessageException
 
 logging:
   level:

@@ -22,6 +22,11 @@ dependencies {
     // Aerospike Starter (single source of truth via root extra)
     implementation("com.aerospike:spring-boot-starter-data-aerospike:${rootProject.extra["aerospikeStarterVersion"]}")
 
+    // Resilience & AOP
+    implementation("io.github.resilience4j:resilience4j-spring-boot3")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.retry:spring-retry")
+
     // Runtime dependencies
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
