@@ -1,16 +1,18 @@
 package com.ai.coding.materializedview.domain.model
 
-import java.math.BigDecimal
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
+import com.ai.coding.materializedview.domain.model.value.ProductName
 import java.time.Instant
 
 /**
  * Product domain entity - core business object
  */
 data class Product(
-    val productId: String,
-    val name: String,
+    val productId: ProductId,
+    val name: ProductName,
     val description: String?,
-    val price: BigDecimal?,
+    val price: Price?,
     val category: String?,
     val createdAt: Instant,
     val updatedAt: Instant,
@@ -18,14 +20,15 @@ data class Product(
 ) {
     companion object {
         fun create(
-            productId: String,
-            name: String,
+            productId: ProductId,
+            name: ProductName,
             description: String? = null,
-            price: BigDecimal? = null,
+            price: Price? = null,
             category: String? = null,
             version: Long = 1L
         ): Product {
             val now = Instant.now()
+            require(version >= 1) { "Version must be >= 1" }
             return Product(
                 productId = productId,
                 name = name,
@@ -40,23 +43,21 @@ data class Product(
     }
 
     fun update(
-        name: String? = null,
+        name: ProductName? = null,
         description: String? = null,
-        price: BigDecimal? = null,
+        price: Price? = null,
         category: String? = null,
         version: Long? = null
     ): Product {
+        val newVersion = version ?: this.version
+        require(newVersion >= this.version) { "New version must be >= current version" }
         return this.copy(
             name = name ?: this.name,
             description = description ?: this.description,
             price = price ?: this.price,
             category = category ?: this.category,
             updatedAt = Instant.now(),
-            version = version ?: this.version
+            version = newVersion
         )
-    }
-
-    fun isInPriceRange(minPrice: BigDecimal, maxPrice: BigDecimal): Boolean {
-        return price?.let { it >= minPrice && it <= maxPrice } ?: false
     }
 }

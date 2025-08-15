@@ -1,13 +1,15 @@
 package com.ai.coding.materializedview.infrastructure.adapter.inbound.messaging
 
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
+import com.ai.coding.materializedview.domain.model.value.ProductName
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import org.apache.avro.generic.GenericRecord
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.Message
 import java.time.Instant
-import java.math.BigDecimal
 import java.util.function.Consumer
 
 /**
@@ -45,14 +47,14 @@ class ProductChangeMessageAdapter(
         val instant = Instant.ofEpochMilli(timestamp)
 
         val priceNum = record.get("price") as? Number
-        val price = priceNum?.toDouble()?.let { BigDecimal.valueOf(it) }
+        val price = priceNum?.toDouble()?.let { Price.of(it) }
 
         val versionNum = record.get("version") as? Number
         val version = versionNum?.toLong() ?: 1L
 
         return Product(
-            productId = record.get("productId").toString(),
-            name = record.get("name").toString(),
+            productId = ProductId.of(record.get("productId").toString()),
+            name = ProductName.of(record.get("name").toString()),
             description = record.get("description")?.toString(),
             price = price,
             category = record.get("category")?.toString(),

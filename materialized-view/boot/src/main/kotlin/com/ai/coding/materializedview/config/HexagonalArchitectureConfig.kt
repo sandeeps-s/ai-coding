@@ -2,6 +2,7 @@ package com.ai.coding.materializedview.config
 
 import com.ai.coding.materializedview.application.service.ProductCommandApplicationService
 import com.ai.coding.materializedview.application.service.ProductQueryApplicationService
+import com.ai.coding.materializedview.domain.event.DomainEventPublisher
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
@@ -17,8 +18,11 @@ import org.springframework.context.annotation.Configuration
 class HexagonalArchitectureConfig {
 
     @Bean
-    fun productDomainService(productRepository: ProductRepository): ProductDomainService =
-        ProductDomainService(productRepository)
+    fun domainEventPublisher(): DomainEventPublisher = DomainEventPublisher { /* no-op */ }
+
+    @Bean
+    fun productDomainService(productRepository: ProductRepository, publisher: DomainEventPublisher): ProductDomainService =
+        ProductDomainService(productRepository, publisher)
 
     @Bean
     fun productQueryUseCase(domain: ProductDomainService): ProductQueryUseCase =

@@ -1,11 +1,13 @@
 package com.ai.coding.materializedview.infrastructure.adapter.outbound.persistence.entity
 
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
+import com.ai.coding.materializedview.domain.model.value.ProductName
 import org.springframework.data.aerospike.mapping.Document
 import org.springframework.data.annotation.Id
 import org.springframework.data.aerospike.mapping.Field
 import java.time.Instant
-import java.math.BigDecimal
 
 /**
  * Aerospike entity for product persistence
@@ -39,10 +41,10 @@ data class ProductView(
 ) {
     companion object {
         fun fromDomain(product: Product): ProductView = ProductView(
-            productId = product.productId,
-            name = product.name,
+            productId = product.productId.value,
+            name = product.name.value,
             description = product.description,
-            price = product.price?.toDouble(),
+            price = product.price?.value?.toDouble(),
             category = product.category,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt,
@@ -51,10 +53,10 @@ data class ProductView(
     }
 
     fun toDomain(): Product = Product(
-        productId = this.productId,
-        name = this.name,
+        productId = ProductId.of(this.productId),
+        name = ProductName.of(this.name),
         description = this.description,
-        price = this.price?.let { BigDecimal.valueOf(it) },
+        price = this.price?.let { Price.of(it) },
         category = this.category,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,

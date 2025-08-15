@@ -1,11 +1,12 @@
 package com.ai.coding.materializedview.infrastructure.adapter.outbound.persistence
 
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
 import com.ai.coding.materializedview.infrastructure.adapter.outbound.persistence.entity.ProductView
 import com.ai.coding.materializedview.infrastructure.adapter.outbound.persistence.repository.ProductViewRepository
 import org.springframework.stereotype.Repository
-import java.math.BigDecimal
 
 /**
  * Adapter that implements the ProductRepository port using Aerospike
@@ -16,8 +17,8 @@ class AerospikeProductRepositoryAdapter(
     private val productViewRepository: ProductViewRepository
 ) : ProductRepository {
 
-    override fun findById(productId: String): Product? {
-        return productViewRepository.findById(productId)
+    override fun findById(productId: ProductId): Product? {
+        return productViewRepository.findById(productId.value)
             .map { it.toDomain() }
             .orElse(null)
     }
@@ -32,17 +33,17 @@ class AerospikeProductRepositoryAdapter(
             .map { it.toDomain() }
     }
 
-    override fun findByPriceBetween(minPrice: BigDecimal, maxPrice: BigDecimal): List<Product> {
-        return productViewRepository.findByPriceBetween(minPrice.toDouble(), maxPrice.toDouble())
+    override fun findByPriceBetween(minPrice: Price, maxPrice: Price): List<Product> {
+        return productViewRepository.findByPriceBetween(minPrice.value.toDouble(), maxPrice.value.toDouble())
             .map { it.toDomain() }
     }
 
     override fun findByCategoryAndPriceBetween(
         category: String,
-        minPrice: BigDecimal,
-        maxPrice: BigDecimal
+        minPrice: Price,
+        maxPrice: Price
     ): List<Product> {
-        return productViewRepository.findByCategoryAndPriceBetween(category, minPrice.toDouble(), maxPrice.toDouble())
+        return productViewRepository.findByCategoryAndPriceBetween(category, minPrice.value.toDouble(), maxPrice.value.toDouble())
             .map { it.toDomain() }
     }
 
@@ -52,11 +53,11 @@ class AerospikeProductRepositoryAdapter(
         return saved.toDomain()
     }
 
-    override fun deleteById(productId: String) {
-        productViewRepository.deleteById(productId)
+    override fun deleteById(productId: ProductId) {
+        productViewRepository.deleteById(productId.value)
     }
 
-    override fun existsById(productId: String): Boolean {
-        return productViewRepository.existsById(productId)
+    override fun existsById(productId: ProductId): Boolean {
+        return productViewRepository.existsById(productId.value)
     }
 }

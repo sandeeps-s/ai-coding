@@ -1,5 +1,7 @@
 package com.ai.coding.materializedview.infrastructure.adapter.inbound.web
 
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto.ProductResponse
 import org.springframework.http.ResponseEntity
@@ -18,7 +20,7 @@ class ProductQueryController(
 
     @GetMapping("/{productId}")
     fun getProduct(@PathVariable productId: String): ResponseEntity<ProductResponse> {
-        val product = productQueryUseCase.getProductById(productId)
+        val product = productQueryUseCase.getProductById(ProductId.of(productId))
         return if (product != null) {
             ResponseEntity.ok(ProductResponse.fromDomain(product))
         } else {
@@ -43,7 +45,7 @@ class ProductQueryController(
         @RequestParam minPrice: BigDecimal,
         @RequestParam maxPrice: BigDecimal
     ): List<ProductResponse> {
-        return productQueryUseCase.getProductsByPriceRange(minPrice, maxPrice)
+        return productQueryUseCase.getProductsByPriceRange(Price.of(minPrice), Price.of(maxPrice))
             .map { ProductResponse.fromDomain(it) }
     }
 
@@ -53,7 +55,7 @@ class ProductQueryController(
         @RequestParam minPrice: BigDecimal,
         @RequestParam maxPrice: BigDecimal
     ): List<ProductResponse> {
-        return productQueryUseCase.getProductsByCategoryAndPriceRange(category, minPrice, maxPrice)
+        return productQueryUseCase.getProductsByCategoryAndPriceRange(category, Price.of(minPrice), Price.of(maxPrice))
             .map { ProductResponse.fromDomain(it) }
     }
 }

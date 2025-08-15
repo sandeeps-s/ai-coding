@@ -1,6 +1,7 @@
 package com.ai.coding.materializedview.application.service
 
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 
 /**
@@ -17,6 +18,6 @@ class ProductCommandApplicationService(
     override fun updateProduct(product: Product): Product =
         domainCommands.updateProduct(product)
 
-    override fun deleteProduct(productId: String) =
+    override fun deleteProduct(productId: ProductId) =
         domainCommands.deleteProduct(productId)
 }

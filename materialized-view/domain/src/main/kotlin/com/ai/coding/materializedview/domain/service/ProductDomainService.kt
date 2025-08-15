@@ -1,6 +1,12 @@
 package com.ai.coding.materializedview.domain.service
 
+import com.ai.coding.materializedview.domain.event.DomainEventPublisher
+import com.ai.coding.materializedview.domain.event.ProductCreated
+import com.ai.coding.materializedview.domain.event.ProductDeleted
+import com.ai.coding.materializedview.domain.event.ProductUpdated
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
@@ -11,11 +17,12 @@ import java.math.BigDecimal
  * This is the core business logic layer - NO Spring dependencies
  */
 class ProductDomainService(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val eventPublisher: DomainEventPublisher
 ) : ProductQueryUseCase, ProductCommandUseCase {
 
     // Query use cases
-    override fun getProductById(productId: String): Product? {
+    override fun getProductById(productId: ProductId): Product? {
         return productRepository.findById(productId)
     }
 
@@ -27,15 +34,15 @@ class ProductDomainService(
         return productRepository.findByCategory(category)
     }
 
-    override fun getProductsByPriceRange(minPrice: BigDecimal, maxPrice: BigDecimal): List<Product> {
+    override fun getProductsByPriceRange(minPrice: Price, maxPrice: Price): List<Product> {
         validatePriceRange(minPrice, maxPrice)
         return productRepository.findByPriceBetween(minPrice, maxPrice)
     }
 
     override fun getProductsByCategoryAndPriceRange(
         category: String,
-        minPrice: BigDecimal,
-        maxPrice: BigDecimal
+        minPrice: Price,
+        maxPrice: Price
     ): List<Product> {
         validatePriceRange(minPrice, maxPrice)
         return productRepository.findByCategoryAndPriceBetween(category, minPrice, maxPrice)
@@ -46,7 +53,9 @@ class ProductDomainService(
         if (productRepository.existsById(product.productId)) {
             throw IllegalArgumentException("Product with ID ${product.productId} already exists")
         }
-        return productRepository.save(product)
+        val saved = productRepository.save(product)
+        eventPublisher.publish(ProductCreated(saved))
+        return saved
     }
 
     override fun updateProduct(product: Product): Product {
@@ -58,21 +67,24 @@ class ProductDomainService(
             throw IllegalArgumentException("Product version must be higher than existing version")
         }
 
-        return productRepository.save(product)
+        val saved = productRepository.save(product)
+        eventPublisher.publish(ProductUpdated(saved))
+        return saved
     }
 
-    override fun deleteProduct(productId: String) {
+    override fun deleteProduct(productId: ProductId) {
         if (!productRepository.existsById(productId)) {
             throw IllegalArgumentException("Product with ID $productId not found")
         }
         productRepository.deleteById(productId)
+        eventPublisher.publish(ProductDeleted(productId))
     }
 
-    private fun validatePriceRange(minPrice: BigDecimal, maxPrice: BigDecimal) {
-        if (minPrice < BigDecimal.ZERO) {
+    private fun validatePriceRange(minPrice: Price, maxPrice: Price) {
+        if (minPrice.value < BigDecimal.ZERO) {
             throw IllegalArgumentException("Minimum price cannot be negative")
         }
-        if (maxPrice < minPrice) {
+        if (maxPrice.value < minPrice.value) {
             throw IllegalArgumentException("Maximum price must be greater than or equal to minimum price")
         }
     }

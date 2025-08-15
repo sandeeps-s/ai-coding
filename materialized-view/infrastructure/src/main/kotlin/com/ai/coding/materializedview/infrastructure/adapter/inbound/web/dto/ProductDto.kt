@@ -1,6 +1,9 @@
 package com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto
 
 import com.ai.coding.materializedview.domain.model.Product
+import com.ai.coding.materializedview.domain.model.value.Price
+import com.ai.coding.materializedview.domain.model.value.ProductId
+import com.ai.coding.materializedview.domain.model.value.ProductName
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -20,10 +23,10 @@ data class ProductResponse(
 ) {
     companion object {
         fun fromDomain(product: Product): ProductResponse = ProductResponse(
-            productId = product.productId,
-            name = product.name,
+            productId = product.productId.value,
+            name = product.name.value,
             description = product.description,
-            price = product.price,
+            price = product.price?.value,
             category = product.category,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt,
@@ -43,10 +46,10 @@ data class ProductRequest(
     val version: Long = 1L
 ) {
     fun toDomain(productId: String): Product = Product.create(
-        productId = productId,
-        name = name,
+        productId = ProductId.of(productId),
+        name = ProductName.of(name),
         description = description,
-        price = price,
+        price = price?.let { Price.of(it) },
         category = category,
         version = version
     )
