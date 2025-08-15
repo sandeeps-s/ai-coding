@@ -40,10 +40,15 @@ class ProductChangeMessageAdapter(
     }
 
     private fun mapToProduct(record: GenericRecord): Product {
-        val timestamp = record.get("timestamp") as Long
+        val timestamp = (record.get("timestamp") as? Number)?.toLong()
+            ?: throw IllegalArgumentException("Missing or invalid timestamp")
         val instant = Instant.ofEpochMilli(timestamp)
-        val priceDouble = record.get("price") as? Double
-        val price = priceDouble?.let { BigDecimal.valueOf(it) }
+
+        val priceNum = record.get("price") as? Number
+        val price = priceNum?.toDouble()?.let { BigDecimal.valueOf(it) }
+
+        val versionNum = record.get("version") as? Number
+        val version = versionNum?.toLong() ?: 1L
 
         return Product(
             productId = record.get("productId").toString(),
@@ -53,7 +58,7 @@ class ProductChangeMessageAdapter(
             category = record.get("category")?.toString(),
             createdAt = instant,
             updatedAt = instant,
-            version = record.get("version") as Long
+            version = version
         )
     }
 }
