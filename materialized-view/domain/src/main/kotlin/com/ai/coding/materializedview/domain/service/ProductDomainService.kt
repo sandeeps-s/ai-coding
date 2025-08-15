@@ -4,7 +4,7 @@ import com.ai.coding.materializedview.domain.model.Product
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
-import java.util.*
+import java.math.BigDecimal
 
 /**
  * Domain service implementing product use cases
@@ -15,7 +15,7 @@ class ProductDomainService(
 ) : ProductQueryUseCase, ProductCommandUseCase {
 
     // Query use cases
-    override fun getProductById(productId: String): Optional<Product> {
+    override fun getProductById(productId: String): Product? {
         return productRepository.findById(productId)
     }
 
@@ -27,15 +27,15 @@ class ProductDomainService(
         return productRepository.findByCategory(category)
     }
 
-    override fun getProductsByPriceRange(minPrice: Double, maxPrice: Double): List<Product> {
+    override fun getProductsByPriceRange(minPrice: BigDecimal, maxPrice: BigDecimal): List<Product> {
         validatePriceRange(minPrice, maxPrice)
         return productRepository.findByPriceBetween(minPrice, maxPrice)
     }
 
     override fun getProductsByCategoryAndPriceRange(
         category: String,
-        minPrice: Double,
-        maxPrice: Double
+        minPrice: BigDecimal,
+        maxPrice: BigDecimal
     ): List<Product> {
         validatePriceRange(minPrice, maxPrice)
         return productRepository.findByCategoryAndPriceBetween(category, minPrice, maxPrice)
@@ -51,7 +51,7 @@ class ProductDomainService(
 
     override fun updateProduct(product: Product): Product {
         val existingProduct = productRepository.findById(product.productId)
-            .orElseThrow { IllegalArgumentException("Product with ID ${product.productId} not found") }
+            ?: throw IllegalArgumentException("Product with ID ${product.productId} not found")
 
         // Business rule: version must be higher for updates
         if (product.version <= existingProduct.version) {
@@ -68,8 +68,8 @@ class ProductDomainService(
         productRepository.deleteById(productId)
     }
 
-    private fun validatePriceRange(minPrice: Double, maxPrice: Double) {
-        if (minPrice < 0) {
+    private fun validatePriceRange(minPrice: BigDecimal, maxPrice: BigDecimal) {
+        if (minPrice < BigDecimal.ZERO) {
             throw IllegalArgumentException("Minimum price cannot be negative")
         }
         if (maxPrice < minPrice) {

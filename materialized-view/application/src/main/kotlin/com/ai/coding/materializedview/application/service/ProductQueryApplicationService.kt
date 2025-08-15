@@ -2,6 +2,7 @@ package com.ai.coding.materializedview.application.service
 
 import com.ai.coding.materializedview.domain.model.Product
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
+import java.math.BigDecimal
 import java.util.*
 
 /**
@@ -12,7 +13,7 @@ class ProductQueryApplicationService(
     private val domainQueries: ProductQueryUseCase
 ) : ProductQueryUseCase {
 
-    override fun getProductById(productId: String): Optional<Product> =
+    override fun getProductById(productId: String): Product? =
         domainQueries.getProductById(productId)
 
     override fun getAllProducts(): List<Product> =
@@ -21,13 +22,13 @@ class ProductQueryApplicationService(
     override fun getProductsByCategory(category: String): List<Product> =
         domainQueries.getProductsByCategory(category)
 
-    override fun getProductsByPriceRange(minPrice: Double, maxPrice: Double): List<Product> =
+    override fun getProductsByPriceRange(minPrice: BigDecimal, maxPrice: BigDecimal): List<Product> =
         domainQueries.getProductsByPriceRange(minPrice, maxPrice)
 
     override fun getProductsByCategoryAndPriceRange(
         category: String,
-        minPrice: Double,
-        maxPrice: Double
+        minPrice: BigDecimal,
+        maxPrice: BigDecimal
     ): List<Product> =
         domainQueries.getProductsByCategoryAndPriceRange(category, minPrice, maxPrice)
 }

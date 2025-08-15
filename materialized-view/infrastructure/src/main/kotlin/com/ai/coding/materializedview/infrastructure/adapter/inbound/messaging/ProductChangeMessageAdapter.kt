@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.Message
 import java.time.Instant
+import java.math.BigDecimal
 import java.util.function.Consumer
 
 /**
@@ -33,8 +34,6 @@ class ProductChangeMessageAdapter(
                     else -> throw IllegalArgumentException("Unknown change type: $changeType")
                 }
             } catch (e: Exception) {
-                // In a real application, you'd want to handle this with proper error handling
-                // such as dead letter queues, retry mechanisms, etc.
                 throw RuntimeException("Failed to process product change message", e)
             }
         }
@@ -43,12 +42,14 @@ class ProductChangeMessageAdapter(
     private fun mapToProduct(record: GenericRecord): Product {
         val timestamp = record.get("timestamp") as Long
         val instant = Instant.ofEpochMilli(timestamp)
+        val priceDouble = record.get("price") as? Double
+        val price = priceDouble?.let { BigDecimal.valueOf(it) }
 
         return Product(
             productId = record.get("productId").toString(),
             name = record.get("name").toString(),
             description = record.get("description")?.toString(),
-            price = record.get("price") as? Double,
+            price = price,
             category = record.get("category")?.toString(),
             createdAt = instant,
             updatedAt = instant,

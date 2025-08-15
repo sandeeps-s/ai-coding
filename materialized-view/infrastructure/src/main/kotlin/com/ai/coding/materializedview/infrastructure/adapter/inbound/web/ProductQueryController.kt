@@ -4,6 +4,7 @@ import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto.ProductResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.math.BigDecimal
 
 /**
  * Web adapter for product queries (inbound adapter)
@@ -18,8 +19,8 @@ class ProductQueryController(
     @GetMapping("/{productId}")
     fun getProduct(@PathVariable productId: String): ResponseEntity<ProductResponse> {
         val product = productQueryUseCase.getProductById(productId)
-        return if (product.isPresent) {
-            ResponseEntity.ok(ProductResponse.fromDomain(product.get()))
+        return if (product != null) {
+            ResponseEntity.ok(ProductResponse.fromDomain(product))
         } else {
             ResponseEntity.notFound().build()
         }
@@ -39,8 +40,8 @@ class ProductQueryController(
 
     @GetMapping("/price-range")
     fun getProductsByPriceRange(
-        @RequestParam minPrice: Double,
-        @RequestParam maxPrice: Double
+        @RequestParam minPrice: BigDecimal,
+        @RequestParam maxPrice: BigDecimal
     ): List<ProductResponse> {
         return productQueryUseCase.getProductsByPriceRange(minPrice, maxPrice)
             .map { ProductResponse.fromDomain(it) }
@@ -49,8 +50,8 @@ class ProductQueryController(
     @GetMapping("/category/{category}/price-range")
     fun getProductsByCategoryAndPriceRange(
         @PathVariable category: String,
-        @RequestParam minPrice: Double,
-        @RequestParam maxPrice: Double
+        @RequestParam minPrice: BigDecimal,
+        @RequestParam maxPrice: BigDecimal
     ): List<ProductResponse> {
         return productQueryUseCase.getProductsByCategoryAndPriceRange(category, minPrice, maxPrice)
             .map { ProductResponse.fromDomain(it) }

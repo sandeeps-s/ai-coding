@@ -1,6 +1,7 @@
 package com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto
 
 import com.ai.coding.materializedview.domain.model.Product
+import java.math.BigDecimal
 import java.time.Instant
 
 /**
@@ -11,7 +12,7 @@ data class ProductResponse(
     val productId: String,
     val name: String,
     val description: String?,
-    val price: Double?,
+    val price: BigDecimal?,
     val category: String?,
     val createdAt: Instant,
     val updatedAt: Instant,
@@ -37,7 +38,7 @@ data class ProductResponse(
 data class ProductRequest(
     val name: String,
     val description: String?,
-    val price: Double?,
+    val price: BigDecimal?,
     val category: String?,
     val version: Long = 1L
 ) {

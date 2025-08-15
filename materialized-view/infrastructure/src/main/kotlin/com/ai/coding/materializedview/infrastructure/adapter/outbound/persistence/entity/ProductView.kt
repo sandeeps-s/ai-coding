@@ -5,6 +5,7 @@ import org.springframework.data.aerospike.mapping.Document
 import org.springframework.data.annotation.Id
 import org.springframework.data.aerospike.mapping.Field
 import java.time.Instant
+import java.math.BigDecimal
 
 /**
  * Aerospike entity for product persistence
@@ -41,7 +42,7 @@ data class ProductView(
             productId = product.productId,
             name = product.name,
             description = product.description,
-            price = product.price,
+            price = product.price?.toDouble(),
             category = product.category,
             createdAt = product.createdAt,
             updatedAt = product.updatedAt,
@@ -53,7 +54,7 @@ data class ProductView(
         productId = this.productId,
         name = this.name,
         description = this.description,
-        price = this.price,
+        price = this.price?.let { BigDecimal.valueOf(it) },
         category = this.category,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,

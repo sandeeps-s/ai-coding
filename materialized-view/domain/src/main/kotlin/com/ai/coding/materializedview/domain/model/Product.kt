@@ -1,5 +1,6 @@
 package com.ai.coding.materializedview.domain.model
 
+import java.math.BigDecimal
 import java.time.Instant
 
 /**
@@ -9,7 +10,7 @@ data class Product(
     val productId: String,
     val name: String,
     val description: String?,
-    val price: Double?,
+    val price: BigDecimal?,
     val category: String?,
     val createdAt: Instant,
     val updatedAt: Instant,
@@ -20,7 +21,7 @@ data class Product(
             productId: String,
             name: String,
             description: String? = null,
-            price: Double? = null,
+            price: BigDecimal? = null,
             category: String? = null,
             version: Long = 1L
         ): Product {
@@ -41,7 +42,7 @@ data class Product(
     fun update(
         name: String? = null,
         description: String? = null,
-        price: Double? = null,
+        price: BigDecimal? = null,
         category: String? = null,
         version: Long? = null
     ): Product {
@@ -55,7 +56,7 @@ data class Product(
         )
     }
 
-    fun isInPriceRange(minPrice: Double, maxPrice: Double): Boolean {
+    fun isInPriceRange(minPrice: BigDecimal, maxPrice: BigDecimal): Boolean {
         return price?.let { it >= minPrice && it <= maxPrice } ?: false
     }
 }
