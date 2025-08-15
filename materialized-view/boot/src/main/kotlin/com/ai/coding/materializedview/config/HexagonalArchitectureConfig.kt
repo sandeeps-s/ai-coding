@@ -7,6 +7,8 @@ import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
 import com.ai.coding.materializedview.domain.service.ProductDomainService
+import com.ai.coding.materializedview.infrastructure.event.SpringDomainEventPublisher
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -18,7 +20,8 @@ import org.springframework.context.annotation.Configuration
 class HexagonalArchitectureConfig {
 
     @Bean
-    fun domainEventPublisher(): DomainEventPublisher = DomainEventPublisher { /* no-op */ }
+    fun domainEventPublisher(delegate: ApplicationEventPublisher): DomainEventPublisher =
+        SpringDomainEventPublisher(delegate)
 
     @Bean
     fun productDomainService(productRepository: ProductRepository, publisher: DomainEventPublisher): ProductDomainService =
