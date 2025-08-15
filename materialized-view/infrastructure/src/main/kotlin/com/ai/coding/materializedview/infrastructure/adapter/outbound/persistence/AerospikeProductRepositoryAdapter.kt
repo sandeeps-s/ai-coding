@@ -59,26 +59,3 @@ class AerospikeProductRepositoryAdapter(
         return productViewRepository.existsById(productId)
     }
 }
-
-// Extension functions to convert between domain and entity
-private fun ProductView.toDomain(): Product = Product(
-    productId = this.productId,
-    name = this.name,
-    description = this.description,
-    price = this.price,
-    category = this.category,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt,
-    version = this.version
-)
-
-private fun ProductView.Companion.fromDomain(product: Product): ProductView = ProductView(
-    productId = product.productId,
-    name = product.name,
-    description = product.description,
-    price = product.price,
-    category = product.category,
-    createdAt = product.createdAt,
-    updatedAt = product.updatedAt,
-    version = product.version
-)

@@ -2,49 +2,32 @@ package com.ai.coding.materializedview.application.service
 
 import com.ai.coding.materializedview.domain.model.Product
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
-import com.ai.coding.materializedview.domain.port.outbound.ProductRepository
 import java.util.*
 
 /**
- * Application service implementing product query use cases
- * This layer orchestrates domain operations and coordinates with repositories
+ * Application service orchestrating product query use cases.
+ * Delegates business rules to the domain layer.
  */
 class ProductQueryApplicationService(
-    private val productRepository: ProductRepository
+    private val domainQueries: ProductQueryUseCase
 ) : ProductQueryUseCase {
 
-    override fun getProductById(productId: String): Optional<Product> {
-        return productRepository.findById(productId)
-    }
+    override fun getProductById(productId: String): Optional<Product> =
+        domainQueries.getProductById(productId)
 
-    override fun getAllProducts(): List<Product> {
-        return productRepository.findAll()
-    }
+    override fun getAllProducts(): List<Product> =
+        domainQueries.getAllProducts()
 
-    override fun getProductsByCategory(category: String): List<Product> {
-        return productRepository.findByCategory(category)
-    }
+    override fun getProductsByCategory(category: String): List<Product> =
+        domainQueries.getProductsByCategory(category)
 
-    override fun getProductsByPriceRange(minPrice: Double, maxPrice: Double): List<Product> {
-        validatePriceRange(minPrice, maxPrice)
-        return productRepository.findByPriceBetween(minPrice, maxPrice)
-    }
+    override fun getProductsByPriceRange(minPrice: Double, maxPrice: Double): List<Product> =
+        domainQueries.getProductsByPriceRange(minPrice, maxPrice)
 
     override fun getProductsByCategoryAndPriceRange(
         category: String,
         minPrice: Double,
         maxPrice: Double
-    ): List<Product> {
-        validatePriceRange(minPrice, maxPrice)
-        return productRepository.findByCategoryAndPriceBetween(category, minPrice, maxPrice)
-    }
-
-    private fun validatePriceRange(minPrice: Double, maxPrice: Double) {
-        if (minPrice < 0) {
-            throw IllegalArgumentException("Minimum price cannot be negative")
-        }
-        if (maxPrice < minPrice) {
-            throw IllegalArgumentException("Maximum price must be greater than or equal to minimum price")
-        }
-    }
+    ): List<Product> =
+        domainQueries.getProductsByCategoryAndPriceRange(category, minPrice, maxPrice)
 }
