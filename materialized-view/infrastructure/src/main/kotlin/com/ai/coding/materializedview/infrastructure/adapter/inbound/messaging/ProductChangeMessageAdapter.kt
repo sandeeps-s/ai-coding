@@ -12,10 +12,12 @@ import com.ai.coding.materializedview.infrastructure.adapter.shared.ExceptionMap
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.apache.avro.generic.GenericRecord
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.Message
 import java.time.Instant
+import java.util.UUID
 import java.util.function.Consumer
 
 /**
@@ -28,14 +30,18 @@ class ProductChangeMessageAdapter(
 ) {
 
     private val log = LoggerFactory.getLogger(ProductChangeMessageAdapter::class.java)
+    private val correlationHeader = "X-Correlation-Id"
+    private val correlationMdcKey = "correlationId"
 
     @Bean
     fun processProductChange(): Consumer<Message<GenericRecord>> {
         return Consumer { message ->
-            val record = message.payload
+            val hdr = message.headers[correlationHeader]
+            val correlationId = hdr?.toString()?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+            MDC.put(correlationMdcKey, correlationId)
             try {
                 // Route via circuit breaker so downstream infra outages trip/open the circuit
-                handleMessage(record)
+                handleMessage(message.payload)
             } catch (ex: InvalidMessageException) {
                 // Non-retryable: immediately surface to error channel / DLQ as configured
                 log.warn("Discarding invalid message: ${'$'}{ex.message}")
@@ -46,6 +52,8 @@ class ProductChangeMessageAdapter(
                 log.error("Failed to process product change message: ${'$'}{mapped.message}", mapped)
                 // Throw mapped exception to trigger retry/backoff and ultimately DLQ
                 throw mapped
+            } finally {
+                MDC.remove(correlationMdcKey)
             }
         }
     }

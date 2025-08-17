@@ -22,6 +22,9 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-otel")
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
 
+    // Structured logging
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
     // Spring Cloud & Kafka Starters
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
