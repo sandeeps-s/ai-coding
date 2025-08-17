@@ -25,6 +25,13 @@ spring:
       namespace: ${embedded.aerospike.namespace:test}
       scans-enabled: true
 
+  cache:
+    type: caffeine
+    cache-names:
+      - productById
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=5m,recordStats
+
   cloud:
     function:
       definition: processProductChange
