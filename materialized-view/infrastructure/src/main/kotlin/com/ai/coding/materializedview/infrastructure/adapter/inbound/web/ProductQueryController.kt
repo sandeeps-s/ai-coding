@@ -16,7 +16,7 @@ import java.math.BigDecimal
  * Now uses application services from the application module
  */
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping(value = ["/api/v1/products", "/api/products"])  // v1 + legacy path
 @Validated
 class ProductQueryController(
     private val productQueryUseCase: ProductQueryUseCase
