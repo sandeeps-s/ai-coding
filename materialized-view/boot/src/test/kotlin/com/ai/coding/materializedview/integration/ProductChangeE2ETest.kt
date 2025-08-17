@@ -100,6 +100,7 @@ class ProductChangeE2ETest {
         assertNotNull(input, "InputDestination should be available for testing")
 
         RestAssured.given()
+            .auth().preemptive().basic("user", "password")
             .get("/api/products/test-stream-002")
             .then()
             .assertThat()
