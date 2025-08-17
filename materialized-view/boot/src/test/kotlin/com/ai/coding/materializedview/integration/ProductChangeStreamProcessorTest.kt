@@ -14,6 +14,7 @@ import java.time.Instant
 
 @SpringBootTest(
     classes = [MaterializedViewApplication::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
         "spring.cloud.function.definition=processProductChange",
         "spring.main.allow-bean-definition-overriding=true"
