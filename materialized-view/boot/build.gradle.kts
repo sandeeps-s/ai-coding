@@ -31,6 +31,9 @@ dependencies {
     // Cache provider
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
+    // Kafka Admin client for health checks
+    implementation("org.apache.kafka:kafka-clients")
+
     // Runtime dependencies
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 

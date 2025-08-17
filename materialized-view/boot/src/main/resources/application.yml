@@ -67,6 +67,15 @@ spring:
               auto.offset.reset: earliest
               processing.guarantee: exactly_once
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 resilience4j:
   circuitbreaker:
     instances:
