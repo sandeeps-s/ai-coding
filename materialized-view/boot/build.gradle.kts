@@ -17,11 +17,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-cache")
 
-    // Observability: Micrometer metrics and tracing
-    implementation("io.micrometer:micrometer-registry-prometheus")
-    implementation("io.micrometer:micrometer-tracing-bridge-otel")
-    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
-
     // Spring Cloud & Kafka Starters
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
 
