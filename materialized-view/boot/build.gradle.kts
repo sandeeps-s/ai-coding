@@ -54,6 +54,7 @@ dependencies {
     testImplementation("com.playtika.testcontainers:embedded-aerospike:${rootProject.extra["embeddedAerospikeVersion"]}")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("org.apache.avro:avro:${rootProject.extra["avroVersion"]}")  // Add Avro for test data creation
+    testImplementation("org.awaitility:awaitility:4.2.0")
 }
 
 dependencyManagement {

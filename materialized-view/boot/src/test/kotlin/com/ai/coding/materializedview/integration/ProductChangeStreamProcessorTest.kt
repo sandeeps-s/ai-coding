@@ -3,13 +3,17 @@ package com.ai.coding.materializedview.integration
 import com.ai.coding.materializedview.MaterializedViewApplication
 import com.ai.coding.materializedview.avro.ChangeType
 import com.ai.coding.materializedview.avro.ProductChange
+import com.ai.coding.materializedview.infrastructure.adapter.outbound.persistence.repository.ProductViewRepository
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.cloud.stream.binder.test.EnableTestBinder
 import org.springframework.cloud.stream.binder.test.InputDestination
 import org.springframework.messaging.support.GenericMessage
+import java.time.Duration
 import java.time.Instant
 
 @SpringBootTest(
@@ -25,6 +29,9 @@ class ProductChangeStreamProcessorTest {
 
     @Autowired
     private lateinit var input: InputDestination
+
+    @Autowired
+    private lateinit var repo: ProductViewRepository
 
     private fun createProductChange(
         productId: String = "test-stream-001",
@@ -47,49 +54,65 @@ class ProductChangeStreamProcessorTest {
         .build()
 
     @Test
-    fun `should process product creation message through stream`() {
-        // Given - Using functional approach to create test data
-        val productChange = createProductChange(changeType = ChangeType.CREATED)
-
-        // When - Send message through functional pipeline
+    fun `should persist product on creation`() {
+        val id = "test-create-001"
+        val productChange = createProductChange(productId = id, changeType = ChangeType.CREATED, version = 1L)
         input.send(GenericMessage(productChange))
 
-        // Then - Validate functional processing completed successfully
-        Thread.sleep(1000) // Allow time for async processing
-        assertNotNull(input, "InputDestination should be available for testing")
+        await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            val pv = repo.findById(id)
+            assertTrue(pv.isPresent)
+            assertEquals("Stream Test Product", pv.get().name)
+            assertEquals(199.99, pv.get().price)
+            assertEquals(1L, pv.get().version)
+        }
     }
 
     @Test
-    fun `should process product update message through stream`() {
-        val id = "test-update-001"
-        // First create the product
+    fun `should update existing product and preserve createdAt`() {
+        val id = "test-update-002"
+        // Seed create
         input.send(GenericMessage(createProductChange(productId = id, changeType = ChangeType.CREATED, version = 1L)))
-        Thread.sleep(100)
-        // Then update it with a higher version
-        val productChange = createProductChange(
-            productId = id,
-            name = "Updated Product",
-            price = 299.99,
-            changeType = ChangeType.UPDATED,
-            version = 2L
+        await().atMost(Duration.ofSeconds(5)).untilAsserted { assertTrue(repo.existsById(id)) }
+        val before = repo.findById(id).get()
+        val beforeCreatedAt = before.createdAt
+
+        // Send update
+        input.send(
+            GenericMessage(
+                createProductChange(
+                    productId = id,
+                    name = "Updated Product",
+                    price = 299.99,
+                    changeType = ChangeType.UPDATED,
+                    version = 2L,
+                    timestamp = Instant.now().toEpochMilli()
+                )
+            )
         )
-        input.send(GenericMessage(productChange))
-        Thread.sleep(300)
-        assertNotNull(input, "Update message should be processed")
+
+        await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            val after = repo.findById(id).get()
+            assertEquals("Updated Product", after.name)
+            assertEquals(299.99, after.price)
+            assertEquals(2L, after.version)
+            // createdAt preserved
+            assertEquals(beforeCreatedAt, after.createdAt)
+        }
     }
 
     @Test
-    fun `should process product deletion message through stream`() {
-        val id = "test-delete-001"
-        // Create first so delete has a target
+    fun `should delete existing product`() {
+        val id = "test-delete-002"
+        // Seed create
         input.send(GenericMessage(createProductChange(productId = id, changeType = ChangeType.CREATED, version = 1L)))
-        Thread.sleep(100)
-        val productChange = createProductChange(
-            productId = id,
-            changeType = ChangeType.DELETED
-        )
-        input.send(GenericMessage(productChange))
-        Thread.sleep(300)
-        assertNotNull(input, "Deletion message should be processed")
+        await().atMost(Duration.ofSeconds(5)).untilAsserted { assertTrue(repo.existsById(id)) }
+
+        // Send delete
+        input.send(GenericMessage(createProductChange(productId = id, changeType = ChangeType.DELETED)))
+
+        await().atMost(Duration.ofSeconds(5)).untilAsserted {
+            assertTrue(!repo.existsById(id))
+        }
     }
 }
