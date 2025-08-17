@@ -11,6 +11,8 @@ import com.ai.coding.materializedview.infrastructure.adapter.shared.InputSanitiz
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import com.ai.coding.materializedview.avro.ProductChange
 import com.ai.coding.materializedview.avro.ChangeType
+import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.core.instrument.Timer
 import org.springframework.stereotype.Component
 import java.time.Instant
 
@@ -21,18 +23,34 @@ import java.time.Instant
 @Component
 class ProductChangeMessageHandler(
     private val productCommandUseCase: ProductCommandUseCase,
-    private val productQueryUseCase: ProductQueryUseCase
+    private val productQueryUseCase: ProductQueryUseCase,
+    private val meterRegistry: MeterRegistry
 ) {
 
     @CircuitBreaker(name = "product-commands")
     fun handleMessage(record: ProductChange) {
-        val changeType = record.changeType
-            ?: throw InvalidMessageException("Missing change type")
-
-        when (changeType) {
-            ChangeType.CREATED -> productCommandUseCase.createProduct(mapToProductForCreate(record))
-            ChangeType.UPDATED -> productCommandUseCase.updateProduct(mapToProductForUpdate(record))
-            ChangeType.DELETED -> productCommandUseCase.deleteProduct(ProductId.of(safeText(record.productId)))
+        val ctTag = record.changeType?.name ?: "UNKNOWN"
+        val sample = Timer.start(meterRegistry)
+        try {
+            when (record.changeType ?: throw InvalidMessageException("Missing change type")) {
+                ChangeType.CREATED -> productCommandUseCase.createProduct(mapToProductForCreate(record))
+                ChangeType.UPDATED -> productCommandUseCase.updateProduct(mapToProductForUpdate(record))
+                ChangeType.DELETED -> productCommandUseCase.deleteProduct(ProductId.of(safeText(record.productId)))
+            }
+            meterRegistry.counter("product.change.processed", "changeType", ctTag).increment()
+        } catch (ex: Exception) {
+            meterRegistry.counter(
+                "product.change.failures",
+                "changeType", ctTag,
+                "exception", (ex::class.simpleName ?: "Unknown")
+            ).increment()
+            throw ex
+        } finally {
+            val timer = Timer.builder("product.change.process.duration")
+                .description("Time to process a product change message")
+                .tags("changeType", ctTag)
+                .register(meterRegistry)
+            sample.stop(timer)
         }
     }
 

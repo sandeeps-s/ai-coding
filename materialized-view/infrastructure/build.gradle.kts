@@ -46,6 +46,9 @@ dependencies {
     // Resilience4j annotations support at compile-time
     implementation("io.github.resilience4j:resilience4j-spring-boot3:${rootProject.extra["resilience4jVersion"]}")
 
+    // Micrometer for metrics instrumentation
+    implementation("io.micrometer:micrometer-core")
+
     // Test dependencies (minimal)
     testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
     testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")

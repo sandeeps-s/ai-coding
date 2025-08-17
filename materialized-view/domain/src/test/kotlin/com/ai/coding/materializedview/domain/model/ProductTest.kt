@@ -6,7 +6,6 @@ import com.ai.coding.materializedview.domain.model.value.ProductName
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
-import java.time.Instant
 
 class ProductTest {
 
