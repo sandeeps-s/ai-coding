@@ -49,10 +49,11 @@ dependencies {
     // Micrometer for metrics instrumentation
     implementation("io.micrometer:micrometer-core")
 
-    // Test dependencies (minimal)
-    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    // Test dependencies
+    testImplementation(platform("org.junit:junit-bom:${rootProject.extra["junitVersion"]}"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
-    testImplementation("org.springframework:spring-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 dependencyManagement {
