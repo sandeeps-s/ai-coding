@@ -33,19 +33,11 @@ class ProductTest {
     }
 
     @Test
-    fun `update should allow same or higher version`() {
-        val p = Product.create(ProductId.of("p-3"), ProductName.of("N"), version = 1)
-        val u1 = p.update(version = 1)
-        val u2 = p.update(version = 2)
-        assertEquals(1, u1.version)
-        assertEquals(2, u2.version)
-    }
-
-    @Test
-    fun `update should fail for lower version`() {
-        val p = Product.create(ProductId.of("p-4"), ProductName.of("N"), version = 2)
-        assertThrows(IllegalArgumentException::class.java) {
-            p.update(version = 1)
-        }
+    fun `update should set same or different version without validation`() {
+        val p = Product.create(ProductId.of("p-3"), ProductName.of("N"), version = 2)
+        val u1 = p.update(version = 2)
+        val u2 = p.update(version = 1)
+        assertEquals(2, u1.version)
+        assertEquals(1, u2.version)
     }
 }

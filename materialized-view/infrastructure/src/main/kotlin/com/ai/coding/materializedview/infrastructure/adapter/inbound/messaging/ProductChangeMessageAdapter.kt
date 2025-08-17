@@ -3,7 +3,7 @@ package com.ai.coding.materializedview.infrastructure.adapter.inbound.messaging
 import com.ai.coding.materializedview.domain.exception.InvalidMessageException
 import com.ai.coding.materializedview.infrastructure.adapter.shared.ExceptionMapper
 import com.ai.coding.materializedview.infrastructure.adapter.shared.InputSanitizer
-import org.apache.avro.generic.GenericRecord
+import com.ai.coding.materializedview.avro.ProductChange
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.context.annotation.Bean
@@ -26,7 +26,7 @@ class ProductChangeMessageAdapter(
     private val correlationMdcKey = "correlationId"
 
     @Bean
-    fun processProductChange(): Consumer<Message<GenericRecord>> {
+    fun processProductChange(): Consumer<Message<ProductChange>> {
         return Consumer { message ->
             val hdr = message.headers[correlationHeader]
             val rawCorrelation = hdr?.toString()

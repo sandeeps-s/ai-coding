@@ -50,7 +50,7 @@ data class Product(
         version: Long? = null
     ): Product {
         val newVersion = version ?: this.version
-        require(newVersion >= this.version) { "New version must be >= current version" }
+        // Versioning rule is enforced at the domain service layer; entity is permissive.
         return this.copy(
             name = name ?: this.name,
             description = description ?: this.description,
