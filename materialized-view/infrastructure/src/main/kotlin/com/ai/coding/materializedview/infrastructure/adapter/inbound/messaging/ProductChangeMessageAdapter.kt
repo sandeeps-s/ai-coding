@@ -9,6 +9,7 @@ import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.model.value.ProductName
 import com.ai.coding.materializedview.domain.port.inbound.ProductCommandUseCase
 import com.ai.coding.materializedview.infrastructure.adapter.shared.ExceptionMapper
+import com.ai.coding.materializedview.infrastructure.adapter.shared.InputSanitizer
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import org.apache.avro.generic.GenericRecord
 import org.slf4j.LoggerFactory
@@ -37,7 +38,9 @@ class ProductChangeMessageAdapter(
     fun processProductChange(): Consumer<Message<GenericRecord>> {
         return Consumer { message ->
             val hdr = message.headers[correlationHeader]
-            val correlationId = hdr?.toString()?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
+            val rawCorrelation = hdr?.toString()
+            val sanitizedCorrelation = InputSanitizer.sanitizeText(rawCorrelation)
+            val correlationId = sanitizedCorrelation?.takeIf { it.isNotBlank() } ?: UUID.randomUUID().toString()
             MDC.put(correlationMdcKey, correlationId)
             try {
                 // Route via circuit breaker so downstream infra outages trip/open the circuit
@@ -60,10 +63,12 @@ class ProductChangeMessageAdapter(
 
     @CircuitBreaker(name = "product-commands")
     fun handleMessage(record: GenericRecord) {
-        val product = mapToProduct(record)
-        val changeType = record.get("changeType")?.toString()
+        val changeTypeRaw = record.get("changeType")?.toString()
             ?: throw InvalidMessageException("Missing change type")
+        val changeType = InputSanitizer.sanitizeText(changeTypeRaw)?.uppercase()
+            ?: throw InvalidMessageException("Invalid change type")
 
+        val product = mapToProduct(record)
         when (changeType) {
             "CREATED" -> productCommandUseCase.createProduct(product)
             "UPDATED" -> productCommandUseCase.updateProduct(product)
@@ -84,17 +89,22 @@ class ProductChangeMessageAdapter(
             val versionNum = record.get("version") as? Number
             val version = versionNum?.toLong() ?: 1L
 
-            val productId = record.get("productId")?.toString()
+            val productId = InputSanitizer.sanitizeText(record.get("productId")?.toString())
+                ?.takeIf { it.isNotBlank() }
                 ?: throw InvalidMessageException("Missing productId")
-            val name = record.get("name")?.toString()
+            val name = InputSanitizer.sanitizeText(record.get("name")?.toString())
+                ?.takeIf { it.isNotBlank() }
                 ?: throw InvalidMessageException("Missing name")
+
+            val description = InputSanitizer.sanitizeText(record.get("description")?.toString())
+            val category = InputSanitizer.sanitizeText(record.get("category")?.toString())
 
             return Product(
                 productId = ProductId.of(productId),
                 name = ProductName.of(name),
-                description = record.get("description")?.toString(),
+                description = description,
                 price = price,
-                category = record.get("category")?.toString(),
+                category = category,
                 createdAt = instant,
                 updatedAt = instant,
                 version = version

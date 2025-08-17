@@ -4,6 +4,7 @@ import com.ai.coding.materializedview.domain.model.value.Price
 import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto.ProductResponse
+import com.ai.coding.materializedview.infrastructure.adapter.shared.InputSanitizer
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
@@ -24,7 +25,8 @@ class ProductQueryController(
 
     @GetMapping("/{productId}")
     fun getProduct(@PathVariable @NotBlank productId: String): ResponseEntity<ProductResponse> {
-        val product = productQueryUseCase.getProductById(ProductId.of(productId))
+        val sanitizedId = InputSanitizer.sanitizePathSegment(productId)
+        val product = productQueryUseCase.getProductById(ProductId.of(sanitizedId))
         return if (product != null) {
             ResponseEntity.ok(ProductResponse.fromDomain(product))
         } else {
@@ -40,7 +42,8 @@ class ProductQueryController(
 
     @GetMapping("/category/{category}")
     fun getProductsByCategory(@PathVariable @NotBlank category: String): List<ProductResponse> {
-        return productQueryUseCase.getProductsByCategory(category)
+        val sanitized = InputSanitizer.sanitizePathSegment(category)
+        return productQueryUseCase.getProductsByCategory(sanitized)
             .map { ProductResponse.fromDomain(it) }
     }
 
@@ -65,7 +68,8 @@ class ProductQueryController(
         if (minPrice > maxPrice) {
             throw IllegalArgumentException("minPrice must be less than or equal to maxPrice")
         }
-        return productQueryUseCase.getProductsByCategoryAndPriceRange(category, Price.of(minPrice), Price.of(maxPrice))
+        val sanitized = InputSanitizer.sanitizePathSegment(category)
+        return productQueryUseCase.getProductsByCategoryAndPriceRange(sanitized, Price.of(minPrice), Price.of(maxPrice))
             .map { ProductResponse.fromDomain(it) }
     }
 }
