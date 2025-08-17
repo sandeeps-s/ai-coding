@@ -23,6 +23,7 @@ extra.apply {
     set("aerospikeStarterVersion", "0.19.0")
     set("aerospikeSpringDataVersion", "5.2.0")
     set("aerospikeClientVersion", "9.0.0")
+    set("resilience4jVersion", "2.2.0")
 
     // Test framework versions
     set("junitVersion", "5.10.0")

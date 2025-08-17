@@ -39,7 +39,7 @@ dependencies {
     implementation("com.aerospike:aerospike-client-jdk8:${rootProject.extra["aerospikeClientVersion"]}")
 
     // Resilience4j annotations support at compile-time
-    implementation("io.github.resilience4j:resilience4j-spring-boot3")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:${rootProject.extra["resilience4jVersion"]}")
 
     // Test dependencies (minimal)
     testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
