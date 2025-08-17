@@ -3,9 +3,15 @@ package com.ai.coding.materializedview.health
 import com.aerospike.client.AerospikeClient
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.HealthIndicator
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnClass(AerospikeClient::class)
+@ConditionalOnBean(AerospikeClient::class)
+@ConditionalOnProperty(name = ["management.health.aerospike.enabled"], havingValue = "true", matchIfMissing = false)
 class AerospikeHealthIndicator(
     private val client: AerospikeClient
 ) : HealthIndicator {
@@ -28,4 +34,3 @@ class AerospikeHealthIndicator(
         Health.down(ex).build()
     }
 }
-

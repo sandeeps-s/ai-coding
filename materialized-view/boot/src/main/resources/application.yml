@@ -2,28 +2,23 @@ spring:
   application:
     name: materialized-view
 
-  # Aerospike configuration using Spring Boot starter properties
+  # Spring Data Aerospike settings
+  data:
+    aerospike:
+      namespace: ${embedded.aerospike.namespace:TEST}
+      scans-enabled: true
+
   aerospike:
     hosts: ${embedded.aerospike.host:localhost}:${embedded.aerospike.port:3000}
     # Connection pooling and client tuning
-    # Number of separate connection pools per node to increase concurrency
     connPoolsPerNode: 4
-    # Maintain at least this many connections per node in each pool
     minConnsPerNode: 8
-    # Cap maximum concurrent connections per node across pools
     maxConnsPerNode: 64
-    # Close sockets that have been idle for this duration (ms)
     maxSocketIdle: 600000
-    # General timeouts/tending
     timeout: 1000
     tendInterval: 500
     write:
       sendKey: true
-
-  data:
-    aerospike:
-      namespace: ${embedded.aerospike.namespace:test}
-      scans-enabled: true
 
   cache:
     type: caffeine
@@ -71,10 +66,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
+  health:
+    aerospike:
+      enabled: false
 
 resilience4j:
   circuitbreaker:

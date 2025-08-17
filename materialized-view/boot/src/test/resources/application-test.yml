@@ -1,2 +1,5 @@
-
+management:
+  health:
+    aerospike:
+      enabled: true
 
