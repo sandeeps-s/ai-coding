@@ -14,8 +14,9 @@ dependencies {
     implementation("org.springframework:spring-beans")
     implementation("org.springframework:spring-aop")
 
-    // Test dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    // Test dependencies (managed by Spring Boot BOM)
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
     testImplementation("org.springframework:spring-test")
 }
