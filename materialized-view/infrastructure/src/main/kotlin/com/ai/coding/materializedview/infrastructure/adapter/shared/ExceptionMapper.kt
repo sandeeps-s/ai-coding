@@ -16,6 +16,7 @@ import java.util.concurrent.TimeoutException
 object ExceptionMapper {
     fun map(throwable: Throwable): RuntimeException = when (throwable) {
         is InvalidMessageException -> throwable
+        is IllegalArgumentException -> InvalidMessageException(throwable.message ?: "Invalid request", throwable)
         is DataAccessException -> PersistenceException(throwable.message ?: "Data access error", throwable)
         is com.aerospike.client.AerospikeException -> PersistenceException(throwable.message ?: "Aerospike error", throwable)
         is ConnectException, is SocketTimeoutException, is TimeoutException -> ExternalDependencyException(
