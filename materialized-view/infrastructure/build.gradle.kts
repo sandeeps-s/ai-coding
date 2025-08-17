@@ -17,6 +17,11 @@ dependencies {
     implementation("org.springframework:spring-webmvc")
     implementation("org.springframework.data:spring-data-commons")
 
+    // Validation annotations used by controllers
+    compileOnly("jakarta.validation:jakarta.validation-api")
+    // Servlet API for HttpServletRequest in exception handler
+    compileOnly("jakarta.servlet:jakarta.servlet-api")
+
     // Spring Cloud & Kafka (compile-time dependencies)
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-stream-binder-kafka-streams")

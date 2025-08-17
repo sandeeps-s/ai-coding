@@ -4,7 +4,10 @@ import com.ai.coding.materializedview.domain.model.value.Price
 import com.ai.coding.materializedview.domain.model.value.ProductId
 import com.ai.coding.materializedview.domain.port.inbound.ProductQueryUseCase
 import com.ai.coding.materializedview.infrastructure.adapter.inbound.web.dto.ProductResponse
+import jakarta.validation.constraints.DecimalMin
+import jakarta.validation.constraints.NotBlank
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
@@ -14,12 +17,13 @@ import java.math.BigDecimal
  */
 @RestController
 @RequestMapping("/api/products")
+@Validated
 class ProductQueryController(
     private val productQueryUseCase: ProductQueryUseCase
 ) {
 
     @GetMapping("/{productId}")
-    fun getProduct(@PathVariable productId: String): ResponseEntity<ProductResponse> {
+    fun getProduct(@PathVariable @NotBlank productId: String): ResponseEntity<ProductResponse> {
         val product = productQueryUseCase.getProductById(ProductId.of(productId))
         return if (product != null) {
             ResponseEntity.ok(ProductResponse.fromDomain(product))
@@ -35,26 +39,32 @@ class ProductQueryController(
     }
 
     @GetMapping("/category/{category}")
-    fun getProductsByCategory(@PathVariable category: String): List<ProductResponse> {
+    fun getProductsByCategory(@PathVariable @NotBlank category: String): List<ProductResponse> {
         return productQueryUseCase.getProductsByCategory(category)
             .map { ProductResponse.fromDomain(it) }
     }
 
     @GetMapping("/price-range")
     fun getProductsByPriceRange(
-        @RequestParam minPrice: BigDecimal,
-        @RequestParam maxPrice: BigDecimal
+        @RequestParam @DecimalMin("0.0") minPrice: BigDecimal,
+        @RequestParam @DecimalMin("0.0") maxPrice: BigDecimal
     ): List<ProductResponse> {
+        if (minPrice > maxPrice) {
+            throw IllegalArgumentException("minPrice must be less than or equal to maxPrice")
+        }
         return productQueryUseCase.getProductsByPriceRange(Price.of(minPrice), Price.of(maxPrice))
             .map { ProductResponse.fromDomain(it) }
     }
 
     @GetMapping("/category/{category}/price-range")
     fun getProductsByCategoryAndPriceRange(
-        @PathVariable category: String,
-        @RequestParam minPrice: BigDecimal,
-        @RequestParam maxPrice: BigDecimal
+        @PathVariable @NotBlank category: String,
+        @RequestParam @DecimalMin("0.0") minPrice: BigDecimal,
+        @RequestParam @DecimalMin("0.0") maxPrice: BigDecimal
     ): List<ProductResponse> {
+        if (minPrice > maxPrice) {
+            throw IllegalArgumentException("minPrice must be less than or equal to maxPrice")
+        }
         return productQueryUseCase.getProductsByCategoryAndPriceRange(category, Price.of(minPrice), Price.of(maxPrice))
             .map { ProductResponse.fromDomain(it) }
     }
